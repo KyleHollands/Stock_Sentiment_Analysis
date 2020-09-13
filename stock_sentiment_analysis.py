@@ -15,11 +15,6 @@ def parse(PATH, driver, website):
     driver.get(website)
     print(driver.title)
 
-    # search = driver.find_element_by_class_name("infinite-scroll-component ")
-    # print(driver.page_source)
-
-    driver.execute_script("window.scrollTo(0, document.body.scrollHeight);")
-
     try:
         scroller = WebDriverWait(driver, 2).until(
             EC.presence_of_element_located((By.CLASS_NAME, "infinite-scroll-component "))
@@ -27,13 +22,37 @@ def parse(PATH, driver, website):
         # print(scroller.text)
 
         bull_count = 0
-        bear_count = 0     
+        bear_count = 0 
 
-        for i in range(1, 30):
+        # Controls the page scrolling parameters==================================================================================
+        # Control the pause time before scrolling begins to allow page loading.
+        SCROLL_PAUSE_TIME = 0.5
+
+        # Acquire the page scroll height.
+        last_height = driver.execute_script("return document.body.scrollHeight")
+
+        while True:
+            # Scroll down to the preset pixel length of the page.
+            driver.execute_script("window.scrollTo(0, 30000)")
+
+            # Utilize the pause value above.
+            time.sleep(SCROLL_PAUSE_TIME)
+
+            # Calculate new scroll height and compare with last scroll height.
+            new_height = driver.execute_script("return document.body.scrollHeight")
+
+            if new_height == last_height:
+                break
+            last_height = new_height
+
+        for i in range(1, 150):
             try:
                 # stock_comments = scroller.find_element_by_xpath("/html/body/div[2]/div/div/div[3]/div/div/div/div[2]/div/div/div[2]/div[3]/div/div[%i]/div/div/article" %(i))
-                stock_outlook = scroller.find_element_by_xpath("/html/body/div[2]/div/div/div[3]/div/div/div/div[2]/div/div/div[2]/div[3]/div/div[%i]/div/div/article/div/div[2]/div[1]/span[2]/span/div/div" %(i))
                 # print(stock_comments.text)
+                
+                # Extract Bearish or Bullish from the header.
+                stock_outlook = scroller.find_element_by_xpath("/html/body/div[2]/div/div/div[3]/div/div/div/div[2]/div/div/div[2]/div[3]/div/div[%i]/div/div/article/div/div[2]/div[1]/span[2]/span/div/div" %(i))
+                # print(stock_outlook.text)
         
                 if stock_outlook.text == "Bullish":
                     bull_count += 1
@@ -48,24 +67,12 @@ def parse(PATH, driver, website):
         
         print("Bulls: " + str(bull_count))
         print("Bears: " + str(bear_count))
-
-        # for article in articles:
-        #     # header = article.find_element_by_class_name("st_11GoBZI")
-        #     header = article.find_element_by_class_name("st_11GoBZI")
-
-            # print(header.text)
             
     finally:
         driver.quit()
 
-    # scroller = driver.find_element_by_class_name("infinite-scroll-component ")
-    # print(scroller.text)
-    # time.sleep(5)
-
-    # driver.quit()
-
 def main(argv):
-    # Path to the driver. In this case, Chrome.
+    # Path to Chrome driver.
     PATH = "C:\Program Files (x86)\chromedriver.exe"
     driver = webdriver.Chrome(PATH)
     stock = input("Enter stock symbol: ")
