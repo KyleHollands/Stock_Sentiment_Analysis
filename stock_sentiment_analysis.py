@@ -6,6 +6,7 @@ import time
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
+from selenium.webdriver.chrome.options import Options
 import sys
 
 def parse(PATH, driver, website):
@@ -25,6 +26,7 @@ def parse(PATH, driver, website):
         bear_count = 0 
 
         # Controls the page scrolling parameters==================================================================================
+        
         # Control the pause time before scrolling begins to allow page loading.
         SCROLL_PAUSE_TIME = 0.5
 
@@ -33,7 +35,7 @@ def parse(PATH, driver, website):
 
         while True:
             # Scroll down to the preset pixel length of the page.
-            driver.execute_script("window.scrollTo(0, 30000)")
+            driver.execute_script("window.scrollTo(0, 40000)")
 
             # Utilize the pause value above.
             time.sleep(SCROLL_PAUSE_TIME)
@@ -45,10 +47,12 @@ def parse(PATH, driver, website):
                 break
             last_height = new_height
 
-        for i in range(1, 150):
+        # ======================================================================================================================
+
+        for i in range(1, 50):
             try:
-                # stock_comments = scroller.find_element_by_xpath("/html/body/div[2]/div/div/div[3]/div/div/div/div[2]/div/div/div[2]/div[3]/div/div[%i]/div/div/article" %(i))
-                # print(stock_comments.text)
+                stock_comments = scroller.find_element_by_xpath("/html/body/div[2]/div/div/div[3]/div/div/div/div[2]/div/div/div[2]/div[3]/div/div[%i]/div/div/article" %(i))
+                print(stock_comments.text)
                 
                 # Extract Bearish or Bullish from the header.
                 stock_outlook = scroller.find_element_by_xpath("/html/body/div[2]/div/div/div[3]/div/div/div/div[2]/div/div/div[2]/div[3]/div/div[%i]/div/div/article/div/div[2]/div[1]/span[2]/span/div/div" %(i))
@@ -74,7 +78,16 @@ def parse(PATH, driver, website):
 def main(argv):
     # Path to Chrome driver.
     PATH = "C:\Program Files (x86)\chromedriver.exe"
-    driver = webdriver.Chrome(PATH)
+
+    # These options ensure that the browser launches in headless mode.
+    options = Options()
+    options.add_argument('--headless')
+    options.add_argument('--disable-gpu')
+    options.add_argument('--log-level=3')
+    options.add_argument('--lang=en')
+
+    driver = webdriver.Chrome(executable_path=PATH, options=options)
+
     stock = input("Enter stock symbol: ")
     website = "https://www.stocktwits.com/symbol/" + stock
 
