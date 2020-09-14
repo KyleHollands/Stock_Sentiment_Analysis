@@ -85,8 +85,8 @@ def parse(PATH, driver, website, pattern):
         # Print out the results while explicitly converting the variables to strings.
         print("Bulls: " + str(bull_count))
         print("Bears: " + str(bear_count))
-        percentage = (bear_count / bull_count) * 100
-        print("Stock Sentiment: " + str(percentage) + "%")
+        percentage = 100 - ((bear_count / bull_count) * 100)
+        print("Stock Sentiment: " + str(percentage) + " %")
             
     finally:
         driver.quit()
