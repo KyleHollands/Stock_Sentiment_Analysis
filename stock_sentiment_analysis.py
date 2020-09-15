@@ -40,7 +40,7 @@ def parse(PATH, driver, website, pattern):
 
         while True:
             # Scroll down to the preset pixel length of the page.
-            driver.execute_script("window.scrollTo(0, 50000)")
+            driver.execute_script("window.scrollTo(0, 100000)")
 
             # Utilize the pause value above.
             time.sleep(SCROLL_PAUSE_TIME)
@@ -54,7 +54,7 @@ def parse(PATH, driver, website, pattern):
 
         # =======================================================================================================================
 
-        for i in range(1, 200):
+        for i in range(1, 5000):
             try:
                 # Acquires the content in each comment.
                 # stock_comments = scroller.find_element_by_xpath("/html/body/div[2]/div/div/div[3]/div/div/div/div[2]/div/div/div[2]/div[3]/div/div[%i]/div/div/article" %(i))
@@ -66,7 +66,7 @@ def parse(PATH, driver, website, pattern):
 
                 # Acquires the time in each header.
                 stock_comment_time = scroller.find_element_by_xpath("/html/body/div[2]/div/div/div[3]/div/div/div/div[2]/div/div/div[2]/div[3]/div/div[%i]/div/div/article/div/div[2]/div[1]/a" %(i))
-                print(stock_comment_time.text)
+                # print(stock_comment_time.text)
 
                 if re.search(pattern, stock_comment_time.text):
                     break
@@ -86,6 +86,7 @@ def parse(PATH, driver, website, pattern):
         print("Bulls: " + str(bull_count))
         print("Bears: " + str(bear_count))
         percentage = 100 - ((bear_count / bull_count) * 100)
+        
         print("Stock Sentiment: " + str(percentage) + " %")
             
     finally:
@@ -95,10 +96,11 @@ def main(argv):
     # Path to Chrome driver.
     PATH = "C:\Program Files (x86)\chromedriver.exe"
 
-    # Acquire the hour (03 for 3:00pm), from the user.
-    hour = input("Enter hour to scrape comments to (ex. 03 - 3:00pm): ")
-
-    pattern = r'^('+hour+')' # Creates the regex pattern to be used from the prior input.
+    # Acquire time to scroll to from the user. (11:00 AM). Only considers hour and AM/PM.
+    time = input("Enter the time to search until (ex. 02:30 PM): ")
+    
+    # Time search regex pattern.
+    pattern = r''+time[0:2]+':\d\d\s'+time[6:8]+''
 
     # These options ensure that the browser launches in headless mode.
     options = Options()
@@ -116,6 +118,8 @@ def main(argv):
 
     # Calls the main functioon above and passes the variables set previously.
     parser = parse(PATH, driver, website, pattern)
+
+    input('Press ENTER to exit')
 
 if __name__ == "__main__":
     main(sys.argv)
