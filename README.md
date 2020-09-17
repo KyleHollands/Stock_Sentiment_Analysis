@@ -1,3 +1,5 @@
+# Stock Sentiment Analysis
+
 As an investor part-time, I realized quickly there are many degrees of tools and methodologies that can be utilized to attempt to
 discern the movement of a stock, whether through technical analysis or fundamental analysis. 
 
