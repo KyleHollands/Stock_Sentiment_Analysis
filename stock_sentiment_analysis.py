@@ -12,7 +12,7 @@ import re
 
 # The main function of the script=================================================================================================
 
-def parse(PATH, driver, website, pattern):
+def parse(PATH, driver, website, time_pattern, bullish_pattern, bearish_pattern, positive_list, negative_list):
     
     # Utilizing the driver parameters set before, get the website that was indicated prior.
     
@@ -22,7 +22,7 @@ def parse(PATH, driver, website, pattern):
 
     # Using a try, except block, ensure the content is loaded before continuing by waiting.
     try:
-        scroller = WebDriverWait(driver, 2).until(
+        scroller = WebDriverWait(driver, 5).until(
             EC.presence_of_element_located((By.CLASS_NAME, "infinite-scroll-component "))
         )
         # print(scroller.text)
@@ -41,7 +41,7 @@ def parse(PATH, driver, website, pattern):
 
         while True:
             # Scroll down to the preset pixel length of the page.
-            driver.execute_script("window.scrollTo(0, 50000)") # Set to a high value.
+            driver.execute_script("window.scrollTo(0, 100000)") # Set to a high value.
 
             # Utilize the pause value above.
             time.sleep(SCROLL_PAUSE_TIME)
@@ -54,35 +54,33 @@ def parse(PATH, driver, website, pattern):
             last_height = new_height
 
         # The main loop to acquire header and comment information================================================================
-        for i in range(1, 50000): # Set to a high value.
+        for stock_comment in scroller.find_elements_by_css_selector('.st_24ON8Bp.st_1x3QBA7.st_1SZeGna.st_3MXcQ5h.st_3-tdfjd'):
             try:
-                # Acquires the content in each comment.
-                # stock_comments = scroller.find_element_by_xpath("/html/body/div[2]/div/div/div[3]/div/div/div/div[2]/div/div/div[2]/div[3]/div/div[%i]/div/div/article" %(i))
-                # print(stock_comments.text) # For debugging.
-                
-                # Acquires the content in each header.
-                stock_outlook = scroller.find_element_by_xpath("/html/body/div[2]/div/div/div[3]/div/div/div/div[2]/div/div/div[2]/div[3]/div/div[%i]/div/div/article/div/div[2]/div[1]/span[2]/span/div/div" %(i))
-                # print(stock_outlook.text) # For debugging.
+                # print(stock_comment.text) # For debugging.
 
-                # Acquires the time in each header.
-                stock_comment_time = scroller.find_element_by_xpath("/html/body/div[2]/div/div/div[3]/div/div/div/div[2]/div/div/div[2]/div[3]/div/div[%i]/div/div/article/div/div[2]/div[1]/a" %(i))
-                # print(stock_comment_time.text) # For debugging.
-                
-                # If the pattern matches the timestamp, continue. Otherwise, break the loop to end scrolling.
-                if re.search(pattern, stock_comment_time.text):
+                # Once the time stamp reaches the time entered, break the loop.
+                if re.search(time_pattern, stock_comment.text):
                     break
-                
+                else:
+                    pass
+
                 # Create a counter of how many times Bullish or Bearish appear.
-                if stock_outlook.text == "Bullish":
+                if re.search(bullish_pattern, stock_comment.text):
                     bull_count += 1
-                elif stock_outlook.text == "Bearish":
+                elif re.search(bearish_pattern, stock_comment.text):
                     bear_count += 1
                 else:
                     pass
 
+                if any(x in stock_comment.text.lower() for x in positive_list):
+                    print("Found")
+
+                # result = [ele for ele in positive_list if (ele in stock_comment.text.lower())]
+                # print(bool(result))
+
             except:
                 pass
-
+            
         # Print out bearish/bullish results as well as a calculated percentage reflecting overall sentiment========================
 
         # Print out the results while explicitly converting the variables to strings.
@@ -93,11 +91,9 @@ def parse(PATH, driver, website, pattern):
         if bear_count < bull_count:
             percentage = 100 - ((bear_count / bull_count) * 100)
             print("Stock Sentiment: " + "{:.2f}".format(percentage) + "%")
-            # print("Stock Sentiment: " + str(percentage) + " %")
         else:
             percentage = 100 - ((bull_count / bear_count) * 100)
             print("Stock Sentiment: " + "{:.2f}".format(percentage) + "%")
-            # print("Stock Sentiment: " + str(percentage) + " %")
 
         # Wait for user input to prevent window from closing.
         input('\nPress ENTER to exit')
@@ -118,12 +114,6 @@ def main(argv):
     options.add_argument('--log-level=3')
     options.add_argument('--lang=en')
 
-    # Acquire time to scroll to from the user. (11:00 AM). Only considers hour and AM/PM.
-    time = input("\nEnter the time to search until (ex. 03:00 PM): ")
-    
-    # Time search regex pattern.
-    pattern = r''+time[0:2]+':\d\d\s'+time[6:8]+''
-
     # Sets the driver to the Chrome webdriver utilizing the options set above.
     driver = webdriver.Chrome(executable_path=PATH, options=options)
 
@@ -131,8 +121,19 @@ def main(argv):
     stock = input("\nEnter stock symbol (ex. PTON): ")
     website = "https://www.stocktwits.com/symbol/" + stock
 
+    # Acquire time to scroll to from the user. (11:00 AM). Only considers hour and AM/PM.
+    time = input("\nEnter the time to search until (ex. 03:00 PM): ")
+    
+    # Time search regex pattern.
+    time_pattern = r''+time[0:2]+':\d\d\s'+time[6:8]+''
+    bullish_pattern = r'Bullish'
+    bearish_pattern = r'Bearish'
+
+    positive_list = ["always", "free"]
+    negative_list = ["sell"]
+
     # Calls the main functioon above and passes the variables set previously.
-    parser = parse(PATH, driver, website, pattern)
+    parser = parse(PATH, driver, website, time_pattern, bullish_pattern, bearish_pattern, positive_list, negative_list)
 
 if __name__ == "__main__":
     main(sys.argv)
