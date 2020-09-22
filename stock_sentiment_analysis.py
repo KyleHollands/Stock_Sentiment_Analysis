@@ -12,7 +12,7 @@ import re
 
 # The main function of the script=================================================================================================
 
-def parse(PATH, driver, website, time_pattern, bullish_pattern, bearish_pattern, positive_list, negative_list):
+def parse(PATH, driver, website, time_pattern, bullish_pattern, bearish_pattern, positive_count, negative_count, positive_list, negative_list):
     
     # Utilizing the driver parameters set before, get the website that was indicated prior.
     
@@ -73,7 +73,12 @@ def parse(PATH, driver, website, time_pattern, bullish_pattern, bearish_pattern,
                     pass
 
                 if any(x in stock_comment.text.lower() for x in positive_list):
-                    print("Found")
+                    # print("Found Positive")
+                    positive_count += 1
+                
+                if any(x in stock_comment.text.lower() for x in negative_list):
+                    # print("Found Negative")
+                    negative_count += 1
 
                 # result = [ele for ele in positive_list if (ele in stock_comment.text.lower())]
                 # print(bool(result))
@@ -86,13 +91,19 @@ def parse(PATH, driver, website, time_pattern, bullish_pattern, bearish_pattern,
         # Print out the results while explicitly converting the variables to strings.
         print("Bulls: " + str(bull_count))
         print("Bears: " + str(bear_count))
+        print(positive_count)
+        print(negative_count)
+
+        positive_total = (positive_count + bull_count)
+        negative_total = (negative_count + bear_count)
+        
 
         # Determine positive outlook percentage.
-        if bear_count < bull_count:
-            percentage = 100 - ((bear_count / bull_count) * 100)
+        if negative_total < positive_total:
+            percentage = 100 - ((negative_total / positive_total) * 100)
             print("Stock Sentiment: " + "{:.2f}".format(percentage) + "%")
         else:
-            percentage = 100 - ((bull_count / bear_count) * 100)
+            percentage = ((positive_total / negative_total) * 100)
             print("Stock Sentiment: " + "{:.2f}".format(percentage) + "%")
 
         # Wait for user input to prevent window from closing.
@@ -129,11 +140,13 @@ def main(argv):
     bullish_pattern = r'Bullish'
     bearish_pattern = r'Bearish'
 
-    positive_list = ["always", "free"]
-    negative_list = ["sell"]
+    positive_count = 0
+    negative_count = 0
+    positive_list = ["buy", "up", "increase", "better", "great", "healthy", "consolidation"]
+    negative_list = ["sell", "overvalued", "shrinking"]
 
     # Calls the main functioon above and passes the variables set previously.
-    parser = parse(PATH, driver, website, time_pattern, bullish_pattern, bearish_pattern, positive_list, negative_list)
+    parser = parse(PATH, driver, website, time_pattern, bullish_pattern, bearish_pattern, positive_count, negative_count, positive_list, negative_list)
 
 if __name__ == "__main__":
     main(sys.argv)
