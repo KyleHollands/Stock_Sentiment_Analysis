@@ -21,6 +21,8 @@ def parse(driver, website, date_time, bullish_pattern, bearish_pattern, positive
 
     print("\n" + driver.title) # Prints the title of the web page.
 
+    date_time = date_time.lower()
+
     if "am" in date_time or "pm" in date_time:
         date_time_pattern = r''+date_time[0:2]+':\d\d\s'+date_time[6:8]+''
     else:
@@ -68,12 +70,6 @@ def parse(driver, website, date_time, bullish_pattern, bearish_pattern, positive
             # stock_comment_text = stock_comment_text.replace("'", "").replace("!", "").replace("?", "")
             try:
                 print(stock_comment_text) # For debugging.
-
-                # Once the time stamp reaches the time entered, break the loop.
-                # if re.search(date_time_pattern, stock_comment.text):
-                #     break
-                # else:
-                #     pass
 
                 if re.search(date_time_pattern, stock_comment_text):
                     break
@@ -152,11 +148,9 @@ def main(argv):
     website = "https://www.stocktwits.com/symbol/" + stock
 
     # Acquire time to scroll to from the user. (11:00 AM). Only considers hour and AM/PM.
-    print("\nEnter the date (ex. 10/3/20) or time (ex. 03:00 pm  | minutes exluded.)")
-    date_time = input("\n")
-
-    # date_time_pattern = r''+date_time[0:2]+':\d\d\s'+date_time[6:8]+''
-    # date_time_pattern = r''+date_time+''
+    print("\nEnter the date (ex. 10/3/20) or time (ex. 03:00 PM  | minutes excluded.)")
+    print("----------------")
+    date_time = input()
 
     bullish_pattern = r'bullish'
     bearish_pattern = r'bearish'
