@@ -3,12 +3,12 @@
 from selenium import webdriver
 from selenium.webdriver.common.keys import Keys
 import time
+import sys
+import re
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.chrome.options import Options
-import sys
-import re
 
 # The main function of the script=================================================================================================
 
@@ -37,6 +37,7 @@ def parse(driver, website, date_time, bullish_pattern, bearish_pattern, positive
     # Sets the bull and bear counters to 0.
     bull_count = 0
     bear_count = 0 
+    count = 0
     
     # Controls the page scrolling parameters==================================================================================
     
@@ -64,13 +65,16 @@ def parse(driver, website, date_time, bullish_pattern, bearish_pattern, positive
     for stock_comment in scroller.find_elements_by_css_selector('.st_24ON8Bp.st_1x3QBA7.st_1SZeGna.st_3MXcQ5h.st_3-tdfjd'):
         stock_comment_text = stock_comment.text.lower()
         stock_comment_text = (stock_comment_text.translate({ord(i): None for i in "'\''-?!"}))
-        
+        count += 1
+
         # try:
-        print("-----------------------------------------------------------------")
         print(stock_comment_text) # For debugging.
+        print("-----------------------------------------------------------------")
         print("-----------------------------------------------------------------")
 
         if re.search(date_time_pattern, stock_comment_text):
+            break
+        elif count == 25:
             break
         else:
             pass
@@ -165,7 +169,7 @@ def main(argv):
     negative_count = 0
     
     positive_list = ["buy", "up", "increase", "better", "great", "healthy", "consolidation", "undervalued", "the squeeze", "outperform", "outperforms", "thats a bullish close", "recover", "squeeze", "short it again"]
-    negative_list = ["sell", "overvalued", "shrinking", "down", "underperform", "underperforms", "thats a bearish close", "cut my losses", "get out", "bye bye"]
+    negative_list = ["sell", "overvalued", "shrinking", "down", "underperform", "underperforms", "thats a bearish close", "cut my losses", "get out", "bye bye", "beware", "will fall", "pos"]
 
     # Calls the main function above and passes the variables set previously.
     parser = parse(driver, website, date_time, bullish_pattern, bearish_pattern, positive_count, negative_count, positive_list, negative_list)
