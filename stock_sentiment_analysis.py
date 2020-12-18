@@ -74,7 +74,7 @@ def parse(driver, website, date_time, bullish_pattern, bearish_pattern, positive
 
         if re.search(date_time_pattern, stock_comment_text):
             break
-        elif count == 25:
+        elif count == 100:
             break
         else:
             pass
