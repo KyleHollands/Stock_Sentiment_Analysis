@@ -12,7 +12,24 @@ from selenium.webdriver.chrome.options import Options
 
 # The main function of the script=================================================================================================
 
-def parse(driver, website, date_time, bullish_pattern, bearish_pattern, positive_count, negative_count, positive_list, negative_list):
+def parse(driver, website, bullish_pattern, bearish_pattern, positive_count, negative_count, positive_list, negative_list):
+    
+    # Acquire time to scroll to from the user. (11:00 AM). Only considers hour and AM/PM.
+
+    date_time = 000000
+    commentNum = 0
+    date_time_pattern = ""
+    
+    print("\nWould you like to search until time or day? (ex. Yes/No")
+    ans = input()
+    print("----------------")
+
+    if ans == "Yes":
+        print("\nEnter the date (ex. 10/3/20) or time (ex. 03:00 PM  | minutes excluded from search.)")
+        date_time = input()
+    else:
+        print("\nEnter the number of comments to search to.")
+        commentNum = int(input())
     
     # Utilizing the driver parameters set before, get the website that was indicated prior.
     
@@ -20,12 +37,13 @@ def parse(driver, website, date_time, bullish_pattern, bearish_pattern, positive
 
     print("\n" + driver.title) # Prints the title of the web page.
 
-    date_time = date_time.lower()
+    if ans == "Yes":
+        date_time = date_time.lower()
 
-    if "am" in date_time or "pm" in date_time:
-        date_time_pattern = r''+date_time[0:2]+':\d\d\s'+date_time[6:8]+''
-    else:
-        date_time_pattern = r''+date_time+''
+        if "am" in date_time or "pm" in date_time:
+            date_time_pattern = r''+date_time[0:2]+':\d\d\s'+date_time[6:8]+''
+        else:
+            date_time_pattern = r''+date_time+''
 
     # Using a try, except block, ensure the content is loaded before continuing by waiting.
     # try:
@@ -65,19 +83,24 @@ def parse(driver, website, date_time, bullish_pattern, bearish_pattern, positive
     for stock_comment in scroller.find_elements_by_css_selector('.st_24ON8Bp.st_1x3QBA7.st_1SZeGna.st_3MXcQ5h.st_3-tdfjd'):
         stock_comment_text = stock_comment.text.lower()
         stock_comment_text = (stock_comment_text.translate({ord(i): None for i in "'\''-?!"}))
-        count += 1
+        count += 1 # Count the number of comments scrolled through.
 
         # try:
         print(stock_comment_text) # For debugging.
         print("-----------------------------------------------------------------")
         print("-----------------------------------------------------------------")
 
-        if re.search(date_time_pattern, stock_comment_text):
-            break
-        elif count == 100:
-            break
-        else:
-            pass
+        if ans == "Yes":
+            if re.search(date_time_pattern, stock_comment_text):
+                break
+            elif count == 100: # If no matches exist, this will prevent the script from running indefinitely.
+                break
+            else:
+                pass
+
+        if ans != "Yes":
+            if count == commentNum:
+                break
 
         # Create a counter of how many times Bullish or Bearish appear and whether positive or negative comments are found.
         if re.search(bullish_pattern, stock_comment_text):
@@ -126,6 +149,8 @@ def parse(driver, website, date_time, bullish_pattern, bearish_pattern, positive
     else:
         pass
 
+    print(count)
+
     # Wait for user input to prevent window from closing.
     input('\nPress ENTER to exit')
 
@@ -157,11 +182,8 @@ def main(argv):
     stock = input("\nEnter stock symbol (ex. PTON): ")
     website = "https://www.stocktwits.com/symbol/" + stock
 
-    # Acquire time to scroll to from the user. (11:00 AM). Only considers hour and AM/PM.
-    print("\nEnter the date (ex. 10/3/20) or time (ex. 03:00 PM  | minutes excluded from search.)")
-    print("----------------")
-    date_time = input()
-
+    
+    
     bullish_pattern = r'bullish'
     bearish_pattern = r'bearish'
 
@@ -172,7 +194,7 @@ def main(argv):
     negative_list = ["sell", "overvalued", "shrinking", "down", "underperform", "underperforms", "thats a bearish close", "cut my losses", "get out", "bye bye", "beware", "will fall", "pos"]
 
     # Calls the main function above and passes the variables set previously.
-    parser = parse(driver, website, date_time, bullish_pattern, bearish_pattern, positive_count, negative_count, positive_list, negative_list)
+    parser = parse(driver, website, bullish_pattern, bearish_pattern, positive_count, negative_count, positive_list, negative_list)
 
 if __name__ == "__main__":
     main(sys.argv)
