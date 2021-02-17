@@ -80,7 +80,7 @@ def parse(driver, website, bullish_pattern, bearish_pattern, positive_count, neg
         last_height = new_height
 
     # The main loop to acquire header and comment information================================================================
-    for stock_comment in scroller.find_elements_by_css_selector('.st_24ON8Bp.st_1x3QBA7.st_1SZeGna.st_3MXcQ5h.st_3-tdfjd'):
+    for stock_comment in scroller.find_elements_by_css_selector('.st_24ON8Bp.st_1x3QBA7.st_1SZeGna.st_3-tdfjd'):
         stock_comment_text = stock_comment.text.lower()
         stock_comment_text = (stock_comment_text.translate({ord(i): None for i in "'\''-?!"}))
         count += 1 # Count the number of comments scrolled through.
