@@ -139,7 +139,7 @@ def parse(driver, website, bullish_pattern, bearish_pattern, positive_count, neg
         percentage = 100 - ((negative_total / positive_total) * 100)
         print("\nStock Sentiment: " + "{:.2f}".format(percentage) + "%")
     elif negative_total > positive_total:
-        percentage = ((positive_total / negative_total) * 100)
+        percentage = 100 - ((positive_total / negative_total) * 100)
         print("\nStock Sentiment: " + "{:.2f}".format(percentage) + "%")
     elif negative_total == 0 and positive_total == 0:
         print("\nNo positive or negative data found.")
@@ -182,8 +182,6 @@ def main(argv):
     stock = input("\nEnter stock symbol (ex. PTON): ")
     website = "https://www.stocktwits.com/symbol/" + stock
 
-    
-    
     bullish_pattern = r'bullish'
     bearish_pattern = r'bearish'
 
