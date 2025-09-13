@@ -180,7 +180,7 @@ def main(argv):
 
     # Asks the user to enter a ticker (stock) symbol.
     stock = input("\nEnter stock symbol (ex. PTON): ")
-    website = "https://www.stocktwits.com/symbol/" + stock
+    website = "" + stock
 
     bullish_pattern = r'bullish'
     bearish_pattern = r'bearish'
